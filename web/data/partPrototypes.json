@@ -1,0 +1,53 @@
+{
+	"partPrototypes": [
+		{
+			"id": 0,
+			"defaultState": "state1",
+			"name": "Труба",
+			"states": {
+				"state1": {
+					"img": "img/pipe.png"
+				}
+			}
+		},
+		{
+			"id": 1,
+			"defaultState": "open",
+			"name": "Кран",
+			"states": {
+				"open": {
+					"img": "img/faucet-open.png"
+				},
+				"close": {
+					"img": "img/faucet-close.png"
+				}
+			}
+		},
+		{
+			"id": 2,
+			"defaultState": "state1",
+			"name": "Уголок трубы",
+			"states": {
+				"state1": {
+					"img": "img/angle.png"
+				}
+			}
+		},
+		{
+			"id": 3,
+			"defaultState": "pipe-gas-full",
+			"name": "Газ",
+			"states": {
+				"pipe-gas-empty": {
+					"img": "img/pipe-gas-empty.png"
+				},
+				"pipe-gas-full": {
+					"img": "img/pipe-gas-full.png"
+				},
+				"pipe-gas-right": {
+					"img": "img/pipe-gas-right.gif"
+				}
+			}
+		}
+	]
+}

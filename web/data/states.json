@@ -1,0 +1,10 @@
+{
+	"version": 1,
+	"p1": "pipe-gas-right",
+	"p2": "pipe-gas-right",
+	"p3": "pipe-gas-right",
+	"p4": "pipe-gas-right",
+	"f1": "close",
+	"f2": "open",
+	"f3": "open"
+}

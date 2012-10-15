@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>Интерактивный тренажер</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<!--link rel="stylesheet" type="text/css" href="css/jquery.contextMenu.css" /-->
+		<link rel="stylesheet" type="text/css" href="css/jquery.contextMenu-1.css" />
+		
+		<script type="text/javascript" src="jquery-1.8.2.js"></script>
+		<script type="text/javascript" src="jquery-ui-1.8.24.custom.min.js"></script>
+		<!--script type="text/javascript" src="jquery.contextMenu.js"></script-->
+		<script type="text/javascript" src="jquery.contextMenu-1.js"></script>
+		<script type="text/javascript" src="jquery.json-2.3.js"></script>
+
+		<script type="text/javascript" src="pipe-observable.js"></script>
+		<script type="text/javascript" src="pipe-draggable-plugin.js"></script>
+		<script type="text/javascript" src="StateManager.js"></script>
+		<script type="text/javascript" src="PartPrototypesManager.js"></script>
+		<script type="text/javascript" src="Schema.js"></script>
+
+
+		<script type="text/javascript">
+			var partInited = function(part) {
+				$(part.element).on("click", function() {
+					part.doAction();
+				});
+			};
+
+			var openSchema = function (parentPart) {
+
+				var schemaLoaded = function() {
+					var offset = $(parentPart.element).offset();
+					var top = offset.top - schemaWindow.height()/2 + 50;
+					var left = offset.left - schemaWindow.width()/2 + 50;
+					if (top < 0)
+						top = 0;
+					if (left < 0)
+						left = 0;
+
+					$(schemaWindow).offset({
+						top: top,
+						left: left
+					});
+					schemaWindow.fadeToggle(500);
+				};
+
+				var schemaWindow = $('<div class="schemaWindow"/>');
+				schemaWindow.hide();
+				schemaWindow.appendTo($("#page")[0]);
+				schemaWindow.load('schemaWindow.html', function() {
+				//	prototypePanel.find("img").attr("src", partPrototype.getDefaultState().img);
+				//	prototypePanel.find(".header").text(partPrototype.name);
+					var schema = new Pipe.Schema(schemaWindow.find(".schema"), "subSchema.json");
+					schema.onLoaded = schemaLoaded;
+					schema.onPartInited = partInited;
+
+					schemaWindow.find(".closeButton").on("click", function() {
+						schema.close();
+						schemaWindow.remove();
+					});
+				});
+
+			}
+
+			////
+			// Сформируем правила загрузки приложения.
+			$(document).ready(function() {
+				var schemaLoaded = function() {
+				};
+
+				var partPrototypeLoaded = function() {
+					// После загрузки прототипов, загружаем схему.
+					schema = new Pipe.Schema($("#schema"), "main.json");
+					schema.onLoaded = schemaLoaded;
+					schema.onPartInited = partInited;
+				};
+
+				Pipe.PartPrototypesManager.onLoaded = partPrototypeLoaded;
+				Pipe.PartPrototypesManager.init();
+
+				Pipe.StateManager.init();
+			});
+
+		</script>
+
+	</head>
+	<body>
+		<div id="page">
+			<div id="schema"></div>
+		</div>
+	</body>
+</html>

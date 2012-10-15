@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<title>Редактор схем</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+		<!--link rel="stylesheet" type="text/css" href="css/jquery.contextMenu.css" /-->
+		<link rel="stylesheet" type="text/css" href="css/jquery.contextMenu-1.css" />
+		
+		<script type="text/javascript" src="jquery-1.8.2.js"></script>
+		<script type="text/javascript" src="jquery-ui-1.8.24.custom.min.js"></script>
+		<!--script type="text/javascript" src="jquery.contextMenu.js"></script-->
+		<script type="text/javascript" src="jquery.contextMenu-1.js"></script>
+		<script type="text/javascript" src="jquery.json-2.3.js"></script>
+		<script type="text/javascript" src="jquery.urldecoder.js"></script>
+
+		<script type="text/javascript" src="pipe-observable.js"></script>
+		<script type="text/javascript" src="pipe-draggable-plugin.js"></script>
+		<script type="text/javascript" src="StateManager.js"></script>
+		<script type="text/javascript" src="PartPrototypesManager.js"></script>
+		<script type="text/javascript" src="Schema.js"></script>
+
+
+		<script type="text/javascript">
+
+			var createPrototypeElement = function(partPrototype) {
+				var prototypePanel = $('<div class="prototypePanel"/>');
+				prototypePanel.appendTo($("#prototypePanel"));
+				prototypePanel.load('prototypePanel.html', function() {
+					prototypePanel.find("img").attr("src", partPrototype.getDefaultState().img);
+					prototypePanel.find(".name").text(partPrototype.name);
+				});
+				prototypePanel.click(function() {
+					schema.getCreatePartByPrototypeId(partPrototype.id);
+				});
+			}
+
+			////
+			// Сформируем правила загрузки приложения.
+			$(document).ready(function() {
+				// Название схемы берем из параметров урла.
+				var schemaFile = "main.json";
+				var res = $.url.parse(document.URL);
+				if (!res.params)
+					res.params = {};
+				if (res.params.file)
+					schemaFile = res.params.file;
+
+				var schemaLoaded = function() {
+				};
+
+				var partInited = function(part) {
+					$(part.element).pipeDraggable({
+						up: function() {
+							$(this).removeClass("rotate90");
+							$(this).removeClass("rotate180");
+							$(this).removeClass("rotate270");
+
+							part.setPosition($(this).position());
+						}
+					});
+				};
+
+				var prototypeLoaded = function() {
+
+					// После загрузки прототипов, загружаем схему.
+					schema = new Pipe.Schema($("#schema"), schemaFile);
+					schema.onLoaded = schemaLoaded;
+					schema.onPartInited = partInited;
+
+					// Отображаем список прототипов.
+					$.each(Pipe.PartPrototypesManager.getPartPrototypes(), function(index, prototype) {
+						createPrototypeElement(prototype);
+					});
+				};
+
+
+				Pipe.PartPrototypesManager.onLoaded = prototypeLoaded;
+				Pipe.PartPrototypesManager.init();
+
+				$.contextMenu({
+					selector: '.part',
+					callback: function(key, options) {
+						var part = options.$trigger.data("part");
+						if (key == "named") {
+							var res = window.prompt("Укажите id детали", part.id);
+							if (res !== null)
+								part.id = res;
+						} else if(key == "action") {
+							res = window.prompt("Укажите действие", part.action);
+							if (res !== null)
+								part.action = res;
+						} else if(key == "rotCW") {
+							part.rotateCW();
+						} else if(key == "rotCCW") {
+							part.rotateCCW();
+ 						} else if(key == "remove") {
+							part.remove();
+						}
+
+					},
+					items: {
+						"named" : {name: "ID"},
+						"action": {name: "Action"},
+						"rotCW" : {name: "Rotate CW"},
+						"rotCCW": {name: "Rotate CCW"},
+						"sep1"  : "---------",
+						"remove": {name: "Remove"}
+					}
+				});
+
+				// Сохранение даных на сервер.
+				$("#saveButton").click(function(){
+					res = window.prompt("Укажите действие", schemaFile);
+					if (res === null)
+						return;
+
+					var data = $.toJSON(schema.getState());
+					$.ajax({
+						type: "POST",
+						url: "data.php?action=save&file="+res,
+						data: data
+					}).done(function(data) {
+						alert("Сервер вернул: "+data);
+					});
+					//console.log($.toJSON(Pipe.Schema.getState()));
+				});
+				// Загрузка данных пока не реализована.
+				$("#loadButton").click(function(){
+					alert("Метод загрузки данных не прописан, для загрузки данных просто обновите страницу (F5).");
+				});
+			});
+
+		</script>
+
+	</head>
+	<body>
+		<div id="page">
+			<div id="buttonPanel">
+				<div id="saveButton" class="button">Сохранить на сервер</div>
+				<div id="loadButton" class="button">Загрузить с сервера</div>
+				<div id="select" class="button">Подсветить аним. эл.</div>
+			</div>
+			<div id="prototypePanel"></div>
+			<div id="schema" class="schemaEditor"></div>
+		</div>
+	</body>
+</html>
