@@ -1,3 +1,7 @@
+/**
+ * https://github.com/vasyaod/pipe
+ * Author: vasyaod (vasyaod@mail.ru)
+ */
 
 (function ($) {
 

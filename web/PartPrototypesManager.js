@@ -1,7 +1,11 @@
+/**
+ * https://github.com/vasyaod/pipe
+ * Author: vasyaod (vasyaod@mail.ru)
+ */
 
 // Проверка существования неймспейса.
-if(typeof Pipe == "undefined")
-        Pipe = {};
+if (typeof Pipe == "undefined")
+	Pipe = {};
 
 Pipe.PartPrototypesManager = {
 
