@@ -23,4 +23,5 @@
  * http://pipe.difur.ru/editor.html и редактор.
 
 Сайт проекта: http://pipe.difur.ru
+
 Автор: vasyaod (vasyaod@mail.ru)
